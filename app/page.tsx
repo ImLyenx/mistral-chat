@@ -122,6 +122,12 @@ export default function Home() {
           ref={textareaRef}
           id="textarea"
           placeholder="Ask a question..."
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && !e.shiftKey) {
+              e.preventDefault();
+              startCompletion();
+            }
+          }}
         />
         <Button onClick={startCompletion} disabled={isLoading}>
           {isLoading ? "Loading..." : "Send"}
