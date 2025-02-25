@@ -126,7 +126,7 @@ export default function Home() {
           id="textarea"
           placeholder="Ask a question..."
           onKeyDown={(e) => {
-            if (e.key === "Enter" && !e.shiftKey) {
+            if (e.key === "Enter" && !e.shiftKey && !isLoading) {
               e.preventDefault();
               startCompletion();
             }
