@@ -78,10 +78,26 @@ export default function Home() {
       }));
       setLastResponse("");
       setIsLoading(false);
-    } catch (error: any) {
-      const fullResponse = `${error.statusCode} - ${
-        JSON.parse(error.body).message
-      }`;
+    } catch (error: unknown) {
+      let fullResponse = "An error occurred";
+
+      if (
+        typeof error === "object" &&
+        error !== null &&
+        "statusCode" in error &&
+        "body" in error &&
+        typeof error.body === "string"
+      ) {
+        try {
+          const parsedBody = JSON.parse(error.body);
+          fullResponse = `${error.statusCode} - ${
+            parsedBody.message || "Unknown error"
+          }`;
+        } catch {
+          fullResponse = `000 - Error parsing body`;
+        }
+      }
+
       setCurrentChat((prev) => ({
         ...prev,
         messages: [
