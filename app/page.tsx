@@ -15,6 +15,9 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import emoji from "remark-emoji";
+import remarkMath from "remark-math";
+import rehypeKatex from "rehype-katex";
+import "katex/dist/katex.min.css";
 
 import { Mistral } from "@mistralai/mistralai";
 
@@ -55,7 +58,7 @@ export default function Home() {
     setIsLoading(true);
     const prompt = textareaRef.current?.value;
     if (!prompt) {
-      alert("Please enter a prompt");
+      setIsLoading(false);
       return;
     }
     if (textareaRef.current) textareaRef.current.value = "";
@@ -154,8 +157,8 @@ export default function Home() {
                 ) : (
                   <div className="prose dark:prose-invert max-w-none">
                     <Markdown
-                      remarkPlugins={[remarkGfm, emoji]}
-                      rehypePlugins={[rehypeRaw]}
+                      remarkPlugins={[remarkGfm, emoji, remarkMath]}
+                      rehypePlugins={[rehypeRaw, rehypeKatex]}
                     >
                       {message.content}
                     </Markdown>
@@ -173,8 +176,8 @@ export default function Home() {
             <CardContent>
               <div className="prose dark:prose-invert max-w-none">
                 <Markdown
-                  remarkPlugins={[remarkGfm, emoji]}
-                  rehypePlugins={[rehypeRaw]}
+                  remarkPlugins={[remarkGfm, emoji, remarkMath]}
+                  rehypePlugins={[rehypeRaw, rehypeKatex]}
                 >
                   {lastResponse}
                 </Markdown>
