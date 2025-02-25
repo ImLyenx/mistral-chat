@@ -9,7 +9,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import * as z from "zod";
@@ -36,9 +36,14 @@ const formSchema = z.object({
 
 export function APIPrompt() {
   const [open, setOpen] = useState(false);
-  const [savedKey, setSavedKey] = useState<string>(
-    localStorage.getItem("apiKey")?.slice(0, 4) + "***" || "Not set"
-  );
+  const [savedKey, setSavedKey] = useState<string>("Not set");
+
+  useEffect(() => {
+    const storedKey = localStorage.getItem("apiKey");
+    if (storedKey) {
+      setSavedKey(storedKey.slice(0, 4) + "***");
+    }
+  }, []);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -50,6 +55,9 @@ export function APIPrompt() {
   function onSubmit(values: z.infer<typeof formSchema>) {
     localStorage.setItem("apiKey", values.apiKey);
     setSavedKey(values.apiKey.slice(0, 4) + "***");
+
+    window.dispatchEvent(new Event("storage"));
+
     form.reset();
     setOpen(false);
   }
@@ -73,10 +81,9 @@ export function APIPrompt() {
                 <FormItem>
                   <FormLabel>API Key</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input {...field} type="password" />
                   </FormControl>
                   <FormDescription>
-                    {" "}
                     Must be a valid MistralAI API key.
                   </FormDescription>
                   <FormMessage />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 
 import { APIPrompt } from "@/components/api-prompt";
 
@@ -33,9 +33,24 @@ export default function Home() {
     model: "mistral-large-latest",
   });
 
+  const [apiKey, setApiKey] = useState<string | null>(null);
+
+  useEffect(() => {
+    setApiKey(localStorage.getItem("apiKey"));
+  }, []);
+
+  useEffect(() => {
+    const handleStorageChange = () => {
+      setApiKey(localStorage.getItem("apiKey"));
+    };
+    window.addEventListener("storage", handleStorageChange);
+    return () => window.removeEventListener("storage", handleStorageChange);
+  }, []);
+
   const [isLoading, setIsLoading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const [lastResponse, setLastResponse] = useState("");
+
   const startCompletion = async () => {
     setIsLoading(true);
     const prompt = textareaRef.current?.value;
@@ -54,7 +69,7 @@ export default function Home() {
       model: currentChat.model,
     });
 
-    const client = new Mistral({ apiKey: localStorage.getItem("apiKey")! });
+    const client = new Mistral({ apiKey: apiKey! });
 
     try {
       const chatResponse = await client.chat.stream({
