@@ -14,6 +14,7 @@ export default function Home() {
   const [completion, setCompletion] = useState("");
   const startCompletion = async () => {
     setIsLoading(true);
+    setCompletion("");
     const apiKey = inputRef.current?.value;
     if (!apiKey) {
       alert("Please enter an API key");
@@ -26,11 +27,13 @@ export default function Home() {
     }
     const client = new Mistral({ apiKey: apiKey });
 
-    const chatResponse = await client.chat.complete({
-      model: "mistral-tiny",
+    const chatResponse = await client.chat.stream({
+      model: "mistral-large-latest",
       messages: [{ role: "user", content: prompt }],
     });
-    setCompletion(chatResponse.choices![0].message.content as any);
+    for await (const chunk of chatResponse) {
+      setCompletion((prev) => prev + chunk.data.choices[0].delta.content);
+    }
     setIsLoading(false);
   };
 
