@@ -16,10 +16,16 @@ import { Mistral } from "@mistralai/mistralai";
 
 export default function Home() {
   const [currentChat, setCurrentChat] = useState<{
-    messages: { role: "user" | "assistant"; content: string }[];
+    messages: { role: "user" | "assistant" | "system"; content: string }[];
     model: string;
   }>({
-    messages: [],
+    messages: [
+      {
+        role: "system" as const,
+        content:
+          "You are a helpful assistant that can answer questions and help with tasks. You also have markdown formatting.",
+      },
+    ],
     model: "mistral-large-latest",
   });
 
@@ -72,25 +78,28 @@ export default function Home() {
   return (
     <>
       <div className="flex flex-col gap-4 mx-auto max-w-4xl my-8">
-        {currentChat.messages.map((message) => (
-          <Card key={message.content}>
-            <CardHeader>
-              <CardTitle>
-                {message.role === "user" ? "You" : "Mistral Large"}
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="prose dark:prose-invert max-w-none">
-                <Markdown
-                  remarkPlugins={[remarkGfm, emoji]}
-                  rehypePlugins={[rehypeRaw]}
-                >
-                  {message.content}
-                </Markdown>
-              </div>
-            </CardContent>
-          </Card>
-        ))}
+        <h1 className="font-bold text-4xl mb-2">Lyenx Chat</h1>
+        {currentChat.messages.map((message) =>
+          message.role !== "system" ? (
+            <Card key={message.content}>
+              <CardHeader>
+                <CardTitle>
+                  {message.role === "user" ? "You" : "Mistral Large"}
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="prose dark:prose-invert max-w-none">
+                  <Markdown
+                    remarkPlugins={[remarkGfm, emoji]}
+                    rehypePlugins={[rehypeRaw]}
+                  >
+                    {message.content}
+                  </Markdown>
+                </div>
+              </CardContent>
+            </Card>
+          ) : null
+        )}
         {lastResponse && (
           <Card>
             <CardHeader>
@@ -109,7 +118,11 @@ export default function Home() {
           </Card>
         )}
 
-        <Textarea ref={textareaRef} id="textarea" />
+        <Textarea
+          ref={textareaRef}
+          id="textarea"
+          placeholder="Ask a question..."
+        />
         <Button onClick={startCompletion} disabled={isLoading}>
           {isLoading ? "Loading..." : "Send"}
         </Button>
