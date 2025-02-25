@@ -77,8 +77,11 @@ export default function Home() {
 
   return (
     <>
-      <div className="flex flex-col gap-4 mx-auto max-w-4xl my-8">
-        <h1 className="font-bold text-4xl mb-2">Lyenx Chat</h1>
+      <div className="flex flex-col gap-4 md:mx-auto mx-8 max-w-4xl my-8">
+        <div className="flex justify-between">
+          <h1 className="font-bold text-4xl mb-2">Lyenx Chat</h1>
+          <APIPrompt />
+        </div>
         {currentChat.messages.map((message) =>
           message.role !== "system" ? (
             <Card key={message.content}>
@@ -133,7 +136,6 @@ export default function Home() {
           {isLoading ? "Loading..." : "Send"}
         </Button>
       </div>
-      <APIPrompt />
     </>
   );
 }

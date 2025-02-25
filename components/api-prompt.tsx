@@ -1,7 +1,6 @@
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
@@ -10,52 +9,85 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import { useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+import {
+  Form,
+  FormControl,
+  FormDescription,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+
+const formSchema = z.object({
+  apiKey: z
+    .string()
+    .min(32, {
+      message: "API key must be 32 characters.",
+    })
+    .max(32, {
+      message: "API key must be 32 characters.",
+    }),
+});
 
 export function APIPrompt() {
-  const [apiKey, setApiKey] = useState<string>("");
+  const [open, setOpen] = useState(false);
   const [savedKey, setSavedKey] = useState<string>(
-    localStorage.getItem("apiKey")?.slice(0, 4) + "***"
+    localStorage.getItem("apiKey")?.slice(0, 4) + "***" || "Not set"
   );
 
+  const form = useForm<z.infer<typeof formSchema>>({
+    resolver: zodResolver(formSchema),
+    defaultValues: {
+      apiKey: "",
+    },
+  });
+
+  function onSubmit(values: z.infer<typeof formSchema>) {
+    localStorage.setItem("apiKey", values.apiKey);
+    setSavedKey(values.apiKey.slice(0, 4) + "***");
+    form.reset();
+    setOpen(false);
+  }
+
   return (
-    <Dialog>
+    <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="fixed bottom-4 right-4">Set API Key</Button>
+        <Button>Set API Key</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[425px]">
         <DialogHeader>
           <DialogTitle>Set API key</DialogTitle>
-          <DialogDescription>
-            Must be a valid Mistral AI API key. Current key: {savedKey}
-          </DialogDescription>
+          <DialogDescription>Current key: {savedKey}</DialogDescription>
         </DialogHeader>
-        <div className="grid gap-4 py-4">
-          <div className="grid grid-cols-4 items-center gap-4">
-            <Label htmlFor="name" className="text-right">
-              API Key
-            </Label>
-            <Input
-              onChange={(e) => setApiKey(e.target.value)}
-              id="name"
-              className="col-span-3"
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+            <FormField
+              control={form.control}
+              name="apiKey"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>API Key</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    {" "}
+                    Must be a valid MistralAI API key.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
-          </div>
-        </div>
-        <DialogFooter>
-          <DialogClose asChild>
-            <Button
-              type="submit"
-              onClick={() => {
-                localStorage.setItem("apiKey", apiKey);
-                setSavedKey(apiKey.slice(0, 4) + "***");
-              }}
-            >
-              Save changes
-            </Button>
-          </DialogClose>
-        </DialogFooter>
+            <DialogFooter>
+              <Button type="submit">Save changes</Button>
+            </DialogFooter>
+          </form>
+        </Form>
       </DialogContent>
     </Dialog>
   );
