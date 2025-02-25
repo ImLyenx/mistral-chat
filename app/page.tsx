@@ -7,6 +7,10 @@ import { APIPrompt } from "@/components/api-prompt";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import Markdown from "react-markdown";
+import remarkGfm from "remark-gfm";
+import rehypeRaw from "rehype-raw";
+import emoji from "remark-emoji";
 
 import { Mistral } from "@mistralai/mistralai";
 
@@ -75,7 +79,16 @@ export default function Home() {
                 {message.role === "user" ? "You" : "Mistral Large"}
               </CardTitle>
             </CardHeader>
-            <CardContent>{message.content}</CardContent>
+            <CardContent>
+              <div className="prose dark:prose-invert max-w-none">
+                <Markdown
+                  remarkPlugins={[remarkGfm, emoji]}
+                  rehypePlugins={[rehypeRaw]}
+                >
+                  {message.content}
+                </Markdown>
+              </div>
+            </CardContent>
           </Card>
         ))}
         {lastResponse && (
@@ -83,7 +96,16 @@ export default function Home() {
             <CardHeader>
               <CardTitle>Mistral Large</CardTitle>
             </CardHeader>
-            <CardContent>{lastResponse}</CardContent>
+            <CardContent>
+              <div className="prose dark:prose-invert max-w-none">
+                <Markdown
+                  remarkPlugins={[remarkGfm, emoji]}
+                  rehypePlugins={[rehypeRaw]}
+                >
+                  {lastResponse}
+                </Markdown>
+              </div>
+            </CardContent>
           </Card>
         )}
 
