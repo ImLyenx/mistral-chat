@@ -6,6 +6,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { useRef, useState } from "react";
 
 import { Mistral } from "@mistralai/mistralai";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function Home() {
   const [isLoading, setIsLoading] = useState(false);
@@ -38,13 +39,18 @@ export default function Home() {
   };
 
   return (
-    <div>
+    <div className="flex flex-col gap-4 mx-auto max-w-4xl">
       <Input ref={inputRef} type="text" />
+      <Card>
+        <CardHeader>
+          <CardTitle>Mistral Large</CardTitle>
+        </CardHeader>
+        <CardContent>{completion}</CardContent>
+      </Card>
       <Textarea ref={textareaRef} id="textarea" />
       <Button onClick={startCompletion} disabled={isLoading}>
         {isLoading ? "Loading..." : "Send"}
       </Button>
-      <p>{completion}</p>
     </div>
   );
 }
