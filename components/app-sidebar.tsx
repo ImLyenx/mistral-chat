@@ -80,7 +80,7 @@ export default function AppSidebar() {
           </SidebarMenuButton>
         </SidebarMenuItem>
       </SidebarGroup>
-      <SidebarContent title="Chats">
+      <SidebarContent>
         {todayChats.length > 0 ? (
           <SidebarGroup className="gap-1">
             <SidebarGroupLabel>Today</SidebarGroupLabel>
