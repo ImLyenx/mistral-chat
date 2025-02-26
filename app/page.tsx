@@ -104,7 +104,7 @@ export default function Home() {
       generateTitle();
       setNeedsTitle(false);
     }
-  }, [currentChat.messages]);
+  }, [currentChat.messages, needsTitle, client.chat, currentChat.model]);
 
   const handleSendMessage = async (message: string) => {
     setIsLoading(true);

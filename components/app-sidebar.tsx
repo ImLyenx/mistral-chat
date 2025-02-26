@@ -10,7 +10,7 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-import { FilePlus, Trash, Trash2 } from "lucide-react";
+import { FilePlus, Trash2 } from "lucide-react";
 
 import { Chat, db } from "@/app/db";
 import { useEffect, useState } from "react";
