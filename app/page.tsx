@@ -21,6 +21,7 @@ import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
 
 import { CodeHighlight } from "@/components/code-highlight";
+import { systemPrompt } from "@/data/system-prompt";
 
 import { Mistral } from "@mistralai/mistralai";
 
@@ -32,8 +33,7 @@ export default function Home() {
     messages: [
       {
         role: "system" as const,
-        content:
-          "You are a helpful assistant that can answer questions and help with tasks. You also have markdown formatting. Any message formatted as `[CODE] - [MESSAGE]` indicates that an error occurred during the request.",
+        content: systemPrompt,
       },
     ],
     model: "mistral-large-latest",
@@ -202,7 +202,7 @@ export default function Home() {
         )}
 
         <Textarea
-          className="px-6 py-4"
+          className="px-6 py-4 min-h-24"
           ref={textareaRef}
           id="textarea"
           placeholder="Ask a question..."

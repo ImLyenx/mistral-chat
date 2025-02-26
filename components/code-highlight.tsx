@@ -5,11 +5,9 @@ interface CodeHighlightProps {
   className?: string | undefined;
   children?: ReactNode | undefined;
   node?: Element | undefined;
-  inline?: boolean | undefined;
 }
 
 export const CodeHighlight = ({
-  inline,
   className,
   children,
   node,
@@ -17,11 +15,17 @@ export const CodeHighlight = ({
 }: CodeHighlightProps): React.ReactElement => {
   const match = className?.match(/language-(\w+)/);
   const language = match ? match[1] : undefined;
-  const code = String(children).trim();
 
-  return !inline ? (
-    <ShikiHighlighter language={language} theme={"houston"} {...props}>
-      {code}
+  const isInline: boolean | undefined = node ? isInlineCode(node) : undefined;
+
+  return !isInline ? (
+    <ShikiHighlighter
+      language={language}
+      theme={"houston"}
+      delay={150}
+      {...props}
+    >
+      {String(children).trim()}
     </ShikiHighlighter>
   ) : (
     <code className={className} {...props}>
