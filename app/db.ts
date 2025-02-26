@@ -9,10 +9,11 @@ export interface ChatMessage {
 
 export interface Chat {
   id?: number;
+  title: string;
   messages: ChatMessage[];
   model: string;
-  createdAt: number;
-  updatedAt: number;
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export class ChatDatabase extends Dexie {

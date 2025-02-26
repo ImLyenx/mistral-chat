@@ -7,20 +7,24 @@ import { ChatInput } from "@/components/chat-input";
 import { systemPrompt } from "@/data/system-prompt";
 import { Mistral } from "@mistralai/mistralai";
 import "katex/dist/katex.min.css";
+import { SidebarTrigger } from "@/components/ui/sidebar";
+import { db } from "./db";
+
+const initialChatState = {
+  messages: [
+    {
+      role: "system" as const,
+      content: systemPrompt,
+    },
+  ],
+  model: "mistral-large-latest",
+};
 
 export default function Home() {
   const [currentChat, setCurrentChat] = useState<{
     messages: { role: "user" | "assistant" | "system"; content: string }[];
     model: string;
-  }>({
-    messages: [
-      {
-        role: "system" as const,
-        content: systemPrompt,
-      },
-    ],
-    model: "mistral-large-latest",
-  });
+  }>(initialChatState);
 
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -31,8 +35,22 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
-    const handleStorageChange = () => {
+    const handleStorageChange = async () => {
       setApiKey(localStorage.getItem("apiKey"));
+      const currentChatId = parseInt(
+        localStorage.getItem("currentChat") ?? "0"
+      );
+      if (currentChatId === 0) {
+        setCurrentChat(initialChatState);
+        return;
+      }
+      const storedChat = await db.chats
+        .where("id")
+        .equals(currentChatId)
+        .first();
+      if (storedChat) {
+        setCurrentChat(storedChat);
+      }
     };
     window.addEventListener("storage", handleStorageChange);
     return () => window.removeEventListener("storage", handleStorageChange);
@@ -107,9 +125,12 @@ export default function Home() {
   };
 
   return (
-    <div className="flex flex-col gap-4 md:mx-auto mx-8 max-w-4xl my-8">
+    <div className="flex flex-col gap-4 md:mx-auto w-full max-w-4xl px-8 my-8">
       <div className="flex justify-between">
-        <h1 className="font-bold text-4xl mb-2">Lyenx Chat</h1>
+        <h1 className="font-bold text-4xl mb-2">
+          <SidebarTrigger className="mr-4 [&_svg]:size-6" />
+          Lyenx Chat
+        </h1>
         <APIPrompt />
       </div>
 
