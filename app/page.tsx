@@ -15,9 +15,12 @@ import Markdown from "react-markdown";
 import remarkGfm from "remark-gfm";
 import rehypeRaw from "rehype-raw";
 import emoji from "remark-emoji";
+import { rehypeInlineCodeProperty } from "react-shiki";
 import remarkMath from "remark-math";
 import rehypeKatex from "rehype-katex";
 import "katex/dist/katex.min.css";
+
+import { CodeHighlight } from "@/components/code-highlight";
 
 import { Mistral } from "@mistralai/mistralai";
 
@@ -158,7 +161,12 @@ export default function Home() {
                   <div className="prose dark:prose-invert max-w-none">
                     <Markdown
                       remarkPlugins={[remarkGfm, emoji, remarkMath]}
-                      rehypePlugins={[rehypeRaw, rehypeKatex]}
+                      rehypePlugins={[
+                        rehypeRaw,
+                        rehypeKatex,
+                        rehypeInlineCodeProperty,
+                      ]}
+                      components={{ code: CodeHighlight }}
                     >
                       {message.content}
                     </Markdown>
@@ -177,7 +185,14 @@ export default function Home() {
               <div className="prose dark:prose-invert max-w-none">
                 <Markdown
                   remarkPlugins={[remarkGfm, emoji, remarkMath]}
-                  rehypePlugins={[rehypeRaw, rehypeKatex]}
+                  rehypePlugins={[
+                    rehypeRaw,
+                    rehypeKatex,
+                    rehypeInlineCodeProperty,
+                  ]}
+                  components={{
+                    code: CodeHighlight,
+                  }}
                 >
                   {lastResponse}
                 </Markdown>
@@ -187,6 +202,7 @@ export default function Home() {
         )}
 
         <Textarea
+          className="px-6 py-4"
           ref={textareaRef}
           id="textarea"
           placeholder="Ask a question..."
