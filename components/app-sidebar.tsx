@@ -33,7 +33,7 @@ export default function AppSidebar() {
   useEffect(() => {
     localStorage.setItem(
       "currentChat",
-      currentChat !== null ? currentChat.toString() : ""
+      currentChat !== null ? currentChat.toString() : "0"
     );
     window.dispatchEvent(new Event("storage"));
   }, [currentChat]);

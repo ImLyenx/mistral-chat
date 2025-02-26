@@ -143,8 +143,8 @@ export default function Home() {
         ],
       }));
       setLastResponse("");
-      if (localStorage.getItem("currentChat") == "0") {
-        await new Promise((resolve) => setTimeout(resolve, 2500));
+      while (localStorage.getItem("currentChat") == "0") {
+        await new Promise((resolve) => setTimeout(resolve, 100));
       }
       await db.chats
         .where("id")
