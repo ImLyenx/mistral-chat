@@ -43,13 +43,12 @@ export default function AppSidebar() {
 
   useEffect(() => {
     const fetchChats = async () => {
-      const chats = await db.chats.toArray();
+      const chats = await db.chats.orderBy("createdAt").reverse().toArray();
       setTodayChats(
         chats.filter(
           (chat) => chat.createdAt >= new Date(Date.now() - 1000 * 60 * 60 * 24)
         )
       );
-      console.log(chats);
       setLastweekChats(
         chats.filter(
           (chat) =>

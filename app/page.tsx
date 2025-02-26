@@ -9,6 +9,7 @@ import { Mistral } from "@mistralai/mistralai";
 import "katex/dist/katex.min.css";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { db } from "./db";
+import { Card, CardContent, CardHeader } from "@/components/ui/card";
 
 const initialChatState = {
   messages: [
@@ -42,16 +43,15 @@ export default function Home() {
   useEffect(() => {
     const handleStorageChange = async () => {
       setApiKey(localStorage.getItem("apiKey"));
-      const currentChatId = parseInt(
-        localStorage.getItem("currentChat") ?? "0"
-      );
-      if (currentChatId === 0) {
+      const storedChatId = parseInt(localStorage.getItem("currentChat") ?? "0");
+      setCurrentChatId(storedChatId);
+      if (storedChatId === 0) {
         setCurrentChat(initialChatState);
         return;
       }
       const storedChat = await db.chats
         .where("id")
-        .equals(currentChatId)
+        .equals(storedChatId)
         .first();
       if (storedChat) {
         setCurrentChat(storedChat);
@@ -95,7 +95,7 @@ export default function Home() {
           updatedAt: new Date(),
         });
         console.log("SAVED CHAT: " + newChat);
-        setCurrentChatId(newChat.id!);
+        setCurrentChatId(newChat);
       };
       generateTitle();
       setNeedsTitle(false);
@@ -151,6 +151,7 @@ export default function Home() {
           updatedAt: new Date(),
         });
     } catch (error: unknown) {
+      console.error(error);
       let fullResponse = "An error occurred";
 
       if (
@@ -206,6 +207,13 @@ export default function Home() {
       {lastResponse && <ChatMessage role="assistant" content={lastResponse} />}
 
       <ChatInput onSend={handleSendMessage} isLoading={isLoading} />
+      <Card>
+        <CardHeader>Debug</CardHeader>
+        <CardContent>
+          Current ID : {currentChatId}
+          <pre>{JSON.stringify(currentChat, null, 2)}</pre>
+        </CardContent>
+      </Card>
     </div>
   );
 }
