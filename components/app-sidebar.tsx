@@ -82,6 +82,9 @@ export default function AppSidebar() {
   const handleDeleteChat = async (id: number) => {
     console.log("deleting chat " + id);
     await db.chats.where("id").equals(id).delete();
+    if (currentChat === id) {
+      setCurrentChat(0);
+    }
     setIsSidebarUpdated(false);
   };
 
