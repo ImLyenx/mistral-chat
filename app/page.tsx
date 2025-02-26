@@ -18,7 +18,7 @@ const initialChatState = {
       content: systemPrompt,
     },
   ],
-  model: "mistral-large-latest",
+  model: "mistral-small-latest",
 };
 
 export default function Home() {
@@ -67,7 +67,7 @@ export default function Home() {
         await new Promise((resolve) => setTimeout(resolve, 3000));
 
         const titleGenerationResponse = await client.chat.complete({
-          model: "mistral-large-latest",
+          model: "mistral-small-latest",
           messages: [
             {
               role: "system",

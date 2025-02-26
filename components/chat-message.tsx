@@ -20,7 +20,7 @@ export function ChatMessage({ role, content }: ChatMessageProps) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>{role === "user" ? "You" : "Mistral Large"}</CardTitle>
+        <CardTitle>{role === "user" ? "You" : "Mistral Small"}</CardTitle>
       </CardHeader>
       <CardContent>
         {isError ? (
