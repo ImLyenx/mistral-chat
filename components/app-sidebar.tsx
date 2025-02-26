@@ -35,7 +35,6 @@ export default function AppSidebar() {
       return;
     }
     const chat = await db.chats.where("id").equals(id).first();
-    console.log(chat);
     if (chat) {
       setCurrentChat(chat.id!);
     }

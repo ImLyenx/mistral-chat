@@ -64,7 +64,7 @@ export default function Home() {
   useEffect(() => {
     if (needsTitle) {
       const generateTitle = async () => {
-        await new Promise((resolve) => setTimeout(resolve, 3000));
+        await new Promise((resolve) => setTimeout(resolve, 2500));
 
         const titleGenerationResponse = await client.chat.complete({
           model: "mistral-small-latest",
@@ -82,7 +82,6 @@ export default function Home() {
             },
           ],
         });
-        console.log(titleGenerationResponse.choices?.[0]?.message?.content);
         const newChat = await db.chats.add({
           title:
             typeof titleGenerationResponse.choices?.[0]?.message?.content ===
@@ -94,8 +93,8 @@ export default function Home() {
           createdAt: new Date(),
           updatedAt: new Date(),
         });
-        console.log("SAVED CHAT: " + newChat);
         setCurrentChatId(newChat);
+        localStorage.setItem("currentChat", newChat.toString());
       };
       generateTitle();
       setNeedsTitle(false);
@@ -139,10 +138,16 @@ export default function Home() {
         ],
       }));
       setLastResponse("");
-      console.log("HELLO" + currentChatId);
+      if (localStorage.getItem("currentChat") == "0") {
+        await new Promise((resolve) => setTimeout(resolve, 2500));
+      }
       await db.chats
         .where("id")
-        .equals(currentChatId)
+        .equals(
+          parseInt(
+            localStorage.getItem("currentChat") ?? currentChatId.toString()
+          )
+        )
         .modify({
           messages: [
             ...newMessages,
@@ -151,7 +156,6 @@ export default function Home() {
           updatedAt: new Date(),
         });
     } catch (error: unknown) {
-      console.error(error);
       let fullResponse = "An error occurred";
 
       if (
@@ -207,13 +211,15 @@ export default function Home() {
       {lastResponse && <ChatMessage role="assistant" content={lastResponse} />}
 
       <ChatInput onSend={handleSendMessage} isLoading={isLoading} />
-      <Card>
-        <CardHeader>Debug</CardHeader>
-        <CardContent>
-          Current ID : {currentChatId}
-          <pre>{JSON.stringify(currentChat, null, 2)}</pre>
-        </CardContent>
-      </Card>
+      {process.env.NODE_ENV === "development" && (
+        <Card>
+          <CardHeader>Debug</CardHeader>
+          <CardContent>
+            Current ID : {currentChatId}
+            <pre>{JSON.stringify(currentChat, null, 2)}</pre>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 }
