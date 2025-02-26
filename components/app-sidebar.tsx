@@ -69,7 +69,9 @@ export default function AppSidebar() {
 
   return (
     <Sidebar title="Lyenx Chat">
-      <SidebarHeader>Lyenx Chat</SidebarHeader>
+      <SidebarHeader className="m-2 text-xl font-bold">
+        Lyenx Chat
+      </SidebarHeader>
       <SidebarGroup>
         <SidebarMenuItem className="list-none">
           <SidebarMenuButton onClick={() => handleChatSwitch(0)}>

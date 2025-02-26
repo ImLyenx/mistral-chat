@@ -29,6 +29,11 @@ export default function Home() {
   const [apiKey, setApiKey] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [lastResponse, setLastResponse] = useState("");
+  const hasAtLeastOneMessage = currentChat.messages.length > 1;
+  const [needsTitle, setNeedsTitle] = useState(false);
+  const [currentChatId, setCurrentChatId] = useState(0);
+
+  const client = new Mistral({ apiKey: apiKey! });
 
   useEffect(() => {
     setApiKey(localStorage.getItem("apiKey"));
@@ -56,8 +61,53 @@ export default function Home() {
     return () => window.removeEventListener("storage", handleStorageChange);
   }, []);
 
+  useEffect(() => {
+    if (needsTitle) {
+      const generateTitle = async () => {
+        await new Promise((resolve) => setTimeout(resolve, 3000));
+
+        const titleGenerationResponse = await client.chat.complete({
+          model: "mistral-large-latest",
+          messages: [
+            {
+              role: "system",
+              content:
+                "You are a helpful assistant that generates titles for chats.",
+            },
+            {
+              role: "user",
+              content:
+                "Generate a title for the following chat. The title has to be short and concise, as it will be displayed in a sidebar. Do not put the title in quotes, just return the title. " +
+                JSON.stringify(currentChat.messages.slice(1)),
+            },
+          ],
+        });
+        console.log(titleGenerationResponse.choices?.[0]?.message?.content);
+        const newChat = await db.chats.add({
+          title:
+            typeof titleGenerationResponse.choices?.[0]?.message?.content ===
+            "string"
+              ? titleGenerationResponse.choices[0].message.content
+              : "New chat",
+          model: currentChat.model,
+          messages: currentChat.messages,
+          createdAt: new Date(),
+          updatedAt: new Date(),
+        });
+        console.log("SAVED CHAT: " + newChat);
+        setCurrentChatId(newChat.id!);
+      };
+      generateTitle();
+      setNeedsTitle(false);
+    }
+  }, [currentChat.messages]);
+
   const handleSendMessage = async (message: string) => {
     setIsLoading(true);
+
+    if (!hasAtLeastOneMessage) {
+      setNeedsTitle(true);
+    }
 
     const newMessages = [
       ...currentChat.messages,
@@ -67,8 +117,6 @@ export default function Home() {
       messages: newMessages,
       model: currentChat.model,
     });
-
-    const client = new Mistral({ apiKey: apiKey! });
 
     try {
       const chatResponse = await client.chat.stream({
@@ -91,6 +139,17 @@ export default function Home() {
         ],
       }));
       setLastResponse("");
+      console.log("HELLO" + currentChatId);
+      await db.chats
+        .where("id")
+        .equals(currentChatId)
+        .modify({
+          messages: [
+            ...newMessages,
+            { role: "assistant" as const, content: fullResponse },
+          ],
+          updatedAt: new Date(),
+        });
     } catch (error: unknown) {
       let fullResponse = "An error occurred";
 

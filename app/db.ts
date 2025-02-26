@@ -2,7 +2,6 @@ import Dexie, { type Table } from "dexie";
 
 export interface ChatMessage {
   id?: number;
-  timestamp: number;
   role: "user" | "assistant" | "system";
   content: string;
 }
