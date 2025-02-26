@@ -10,16 +10,25 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 
-import { FilePlus } from "lucide-react";
+import { FilePlus, Trash, Trash2 } from "lucide-react";
 
 import { Chat, db } from "@/app/db";
 import { useEffect, useState } from "react";
+import { Button } from "@/components/ui/button";
+import { toast } from "sonner";
 
 export default function AppSidebar() {
   const [todayChats, setTodayChats] = useState<Chat[]>([]);
   const [lastweekChats, setLastweekChats] = useState<Chat[]>([]);
   const [olderChats, setOlderChats] = useState<Chat[]>([]);
   const [currentChat, setCurrentChat] = useState<number | null>(null);
+  const [isSidebarUpdated, setIsSidebarUpdated] = useState(true);
+
+  useEffect(() => {
+    window.addEventListener("newChat", () => {
+      setIsSidebarUpdated(false);
+    });
+  }, []);
 
   useEffect(() => {
     localStorage.setItem(
@@ -30,6 +39,10 @@ export default function AppSidebar() {
   }, [currentChat]);
 
   const handleChatSwitch = async (id: number) => {
+    if (localStorage.getItem("isLoading") === "true") {
+      toast.error("Please wait for the current chat to load");
+      return;
+    }
     if (id === 0) {
       setCurrentChat(0);
       return;
@@ -63,7 +76,14 @@ export default function AppSidebar() {
       );
     };
     fetchChats();
-  }, []);
+    setIsSidebarUpdated(true);
+  }, [isSidebarUpdated]);
+
+  const handleDeleteChat = async (id: number) => {
+    console.log("deleting chat " + id);
+    await db.chats.where("id").equals(id).delete();
+    setIsSidebarUpdated(false);
+  };
 
   return (
     <Sidebar title="Lyenx Chat">
@@ -84,8 +104,20 @@ export default function AppSidebar() {
             <SidebarGroupLabel>Today</SidebarGroupLabel>
             {todayChats.map((chat) => (
               <SidebarMenuItem key={chat.id} className="list-none">
-                <SidebarMenuButton onClick={() => handleChatSwitch(chat.id!)}>
+                <SidebarMenuButton
+                  className="relative group/delete"
+                  onClick={() => handleChatSwitch(chat.id!)}
+                >
                   {chat.title}
+                  <Button
+                    className="absolute right-3 top-1/2 -translate-y-1/2 opacity-0 group-hover/delete:opacity-100 bg-slate-200"
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDeleteChat(chat.id!)}
+                    asChild
+                  >
+                    <Trash2 />
+                  </Button>
                 </SidebarMenuButton>
               </SidebarMenuItem>
             ))}

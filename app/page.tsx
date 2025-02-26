@@ -41,6 +41,10 @@ export default function Home() {
   }, []);
 
   useEffect(() => {
+    localStorage.setItem("isLoading", isLoading.toString());
+  }, [isLoading]);
+
+  useEffect(() => {
     const handleStorageChange = async () => {
       setApiKey(localStorage.getItem("apiKey"));
       const storedChatId = parseInt(localStorage.getItem("currentChat") ?? "0");
@@ -93,6 +97,7 @@ export default function Home() {
           createdAt: new Date(),
           updatedAt: new Date(),
         });
+        window.dispatchEvent(new Event("newChat"));
         setCurrentChatId(newChat);
         localStorage.setItem("currentChat", newChat.toString());
       };
@@ -156,6 +161,7 @@ export default function Home() {
           updatedAt: new Date(),
         });
     } catch (error: unknown) {
+      console.error(error);
       let fullResponse = "An error occurred";
 
       if (
