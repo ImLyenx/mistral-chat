@@ -12,6 +12,9 @@ Mistral Chat is a modern chat application built with Next.js, React, Tailwind CS
 - Local chat storage using Dexie
 - Easy to install and configure
 
+> [!IMPORTANT]  
+> You will need a Mistral API key to use this application. You can get one by signing up at [Mistral](https://mistral.ai).
+
 ## Installation
 
 ### Prerequisites
